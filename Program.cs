@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Data.SqlServerCe;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TestHostForCastException
 {
@@ -10,6 +8,19 @@ namespace TestHostForCastException
     {
         static void Main(string[] args)
         {
+            var ceConnectionString = "Data Source=TestDb.sdf; Persist Security Info = False; ";
+            var ceConnection = new SqlCeConnection(ceConnectionString);
+            ceConnection.Open();
+
+            var options = new DbContextOptionsBuilder<TestDataContext>()
+                .UseSqlCe(ceConnection)
+                .Options;
+
+            var context = new TestDataContext(options);
+            context.Set<Employee>()
+                .Include(i => i.Devices)
+                .Cast<IEmployee>()
+                .ToList();
         }
     }
 }
